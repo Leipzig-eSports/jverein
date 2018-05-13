@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import de.jost_net.JVerein.rmi.Mail;
 import de.jost_net.JVerein.rmi.MailAnhang;
 import de.jost_net.JVerein.rmi.MailEmpfaenger;
+import de.jost_net.JVerein.rmi.Mitglied;
 import de.willuhn.datasource.db.AbstractDBObject;
 import de.willuhn.logging.Logger;
 import de.willuhn.util.ApplicationException;
@@ -32,7 +33,7 @@ public class MailImpl extends AbstractDBObject implements Mail
 
   private static final long serialVersionUID = 1L;
 
-  private TreeSet<MailEmpfaenger> empfaenger = null;
+  private TreeSet<Mitglied> empfaenger = null;
 
   private TreeSet<MailAnhang> anhang = null;
 
@@ -100,13 +101,13 @@ public class MailImpl extends AbstractDBObject implements Mail
   }
 
   @Override
-  public TreeSet<MailEmpfaenger> getEmpfaenger()
+  public TreeSet<Mitglied> getEmpfaenger()
   {
-    return empfaenger;
+    return this.empfaenger;
   }
 
   @Override
-  public void setEmpfaenger(TreeSet<MailEmpfaenger> empfaenger)
+  public void setEmpfaenger(TreeSet<Mitglied> empfaenger)
   {
     this.empfaenger = empfaenger;
   }

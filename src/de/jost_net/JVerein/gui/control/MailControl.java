@@ -32,6 +32,7 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 
 import de.jost_net.JVerein.Einstellungen;
+import de.jost_net.JVerein.Queries.MailQuery;
 import de.jost_net.JVerein.Variable.AllgemeineMap;
 import de.jost_net.JVerein.Variable.MitgliedMap;
 import de.jost_net.JVerein.Variable.VarTools;
@@ -102,49 +103,34 @@ public class MailControl extends AbstractControl
     return mail;
   }
 
-  public TablePart getEmpfaenger() throws RemoteException
-  {
-    if (empfaenger != null)
-    {
-      return empfaenger;
-    }
-    if (!getMail().isNewObject() && getMail().getEmpfaenger() == null)
-    {
-      DBIterator<MailEmpfaenger> it = Einstellungen.getDBService()
-          .createList(MailEmpfaenger.class);
-      it.join("mitglied");
-      it.addFilter("mail = ?", new Object[] { getMail().getID() });
-      it.setOrder("order by mitglied.name, mitglied.vorname");
-      TreeSet<MailEmpfaenger> empf = new TreeSet<MailEmpfaenger>();
-      while (it.hasNext())
-      {
-        MailEmpfaenger me = it.next();
-        empf.add(me);
-      }
-      getMail().setEmpfaenger(empf);
-    }
-    else if (getMail().getEmpfaenger() == null)
-    {
-      getMail().setEmpfaenger(new TreeSet<MailEmpfaenger>());
-    }
-    // Umwandeln in ArrayList
-    ArrayList<MailEmpfaenger> empf2 = new ArrayList<MailEmpfaenger>();
-    for (MailEmpfaenger me : getMail().getEmpfaenger())
-    {
-      empf2.add(me);
-    }
-    empfaenger = new TablePart(empf2, null);
-    empfaenger.addColumn("Mail-Adresse", "mailadresse");
-    empfaenger.addColumn("Name", "name");
-    empfaenger.addColumn("Versand", "versand",
-        new DateFormatter(new JVDateFormatDATETIME()));
-    empfaenger.setContextMenu(new MailAuswahlMenu(this));
-    empfaenger.setRememberOrder(true);
-    empfaenger.setSummary(false);
-    return empfaenger;
+  public TablePart getEmpfaenger() throws RemoteException {
+	  Object[] params = new Object[] { getMail().getID() };
+	  MailQuery mq = new MailQuery(params);
+	  if (empfaenger != null) {
+		  return empfaenger;
+	  }
+    
+	  if (!getMail().isNewObject() && getMail().getEmpfaenger() == null) {
+		  //Set Mails in Business Object
+		  getMail().setEmpfaenger(mq.getEmpfTreeSet());
+		  }
+	  else if (getMail().getEmpfaenger() == null) {
+		  getMail().setEmpfaenger(new TreeSet<Mitglied>());
+	  }
+	  empfaenger = new TablePart(mq.getEmpfArrayList(), null);
+	  empfaenger.addColumn("Mail-Adresse", "email");
+	  empfaenger.addColumn("Vorname", "vorname");
+	  empfaenger.addColumn("Name", "name");
+	  //TODO Versand wird nicht mehr angezeigt, da nicht in der Migliederliste gespeichert
+	  empfaenger.addColumn("Versand", "versand", new DateFormatter(new JVDateFormatDATETIME()));
+	  empfaenger.setContextMenu(new MailAuswahlMenu(this));
+	  empfaenger.setRememberOrder(true);
+	  empfaenger.setSummary(false);
+	  return empfaenger;
   }
 
-  public void addEmpfaenger(MailEmpfaenger me) throws RemoteException
+  //TODO Rewrite for new Meta
+  public void addEmpfaenger(Mitglied me) throws RemoteException
   {
     if (!getMail().getEmpfaenger().contains(me))
     {
@@ -265,8 +251,9 @@ public class MailControl extends AbstractControl
         try
         {
           int toBeSentCount = 0;
-          for (final MailEmpfaenger empf : getMail().getEmpfaenger())
+          for (final Mitglied empf : getMail().getEmpfaenger())
           {
+        	//TODO
             if (empf.getVersand() == null)
             {
               toBeSentCount++;
@@ -346,8 +333,9 @@ public class MailControl extends AbstractControl
           }
 
           boolean mailAlreadySent = false;
-          for (final MailEmpfaenger empf : getMail().getEmpfaenger())
+          for (final Mitglied empf : getMail().getEmpfaenger())
           {
+        	 //TODO
             if (empf.getVersand() != null)
             {
               mailAlreadySent = true;

@@ -24,9 +24,9 @@ import de.willuhn.datasource.rmi.DBObject;
 
 public interface Mail extends DBObject
 {
-  public TreeSet<MailEmpfaenger> getEmpfaenger() throws RemoteException;
+  public TreeSet<Mitglied> getEmpfaenger() throws RemoteException;
 
-  public void setEmpfaenger(TreeSet<MailEmpfaenger> empfaenger)
+  public void setEmpfaenger(TreeSet<Mitglied> empfaenger)
       throws RemoteException;
 
   public TreeSet<MailAnhang> getAnhang() throws RemoteException;
